@@ -1,19 +1,14 @@
-import model.Person;
+import model.user.*;
+import model.userDetails.*;
 
 import javax.jdo.Extent;
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
-import java.util.Iterator;
 import java.util.Properties;
 
 public class Application {
     public static void main(String[] args) {
-        // Check the arguments:
-        String name = "john";
-        String surname  = "malecki";
-        int age = 18;
-
         try {
             // Obtain a database connection:
             Properties properties = new Properties();
@@ -21,7 +16,7 @@ public class Application {
                     "javax.jdo.PersistenceManagerFactoryClass",
                     "com.objectdb.jdo.PMF");
             properties.setProperty(
-                    "javax.jdo.option.ConnectionURL", "persons.odb");
+                    "javax.jdo.option.ConnectionURL", "user.odb");
             PersistenceManagerFactory pmf =
                     JDOHelper.getPersistenceManagerFactory(properties);
             PersistenceManager pm = pmf.getPersistenceManager();
@@ -30,12 +25,24 @@ public class Application {
                 // Begin the transaction:
                 pm.currentTransaction().begin();
 
-                // Create and store a new Person instance:
-                Person person = new Person(name, surname, age);
-                pm.makePersistent(person);
+                // Create and store a new User instance:
+                UserDetails userDetails = new UserDetails.Builder()
+                        .phone(Phone.phone("777777777"))
+                        .nickName(NickName.nickName("tomson"))
+                        .city(City.city("Warszawa"))
+                        .birthDay(BirthDay.birthDay(1))
+                        .birthMonth(BirthMonth.birthMonth(1))
+                        .birthYear(BirthYear.birthYear(1995))
+                        .zipCode(ZipCode.zipCode("00-001"))
+                        .avatar(Avatar.avatar("http://www.google.pl/img/tesa3w"))
+                        .build();
+
+                User user = new User(Email.email("test@gmail.com"), Name.name("Tomasz"), Surname.surname("Łach"), Age.age(64),
+                        IsActive.isActive(true), Sex.sex(true), userDetails);
+                pm.makePersistent(user);
 
                 // Print all the Persons in the database:
-                Extent extent = pm.getExtent(Person.class, false);
+                Extent extent = pm.getExtent(User.class, false);
                 for (Object anExtent : extent) System.out.println(anExtent);
                 extent.closeAll();
 
